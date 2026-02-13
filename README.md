@@ -7,6 +7,8 @@ A free, open-source monitoring dashboard for [OpenClaw](https://openclaw.ai) AI 
 ![React 19](https://img.shields.io/badge/React-19-61DAFB.svg)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6.svg)
 
+![Dashboard Overview](docs/screenshots/dashboard-overview.png)
+
 ## What It Does
 
 OpenClaw Dashboard gives you a single web interface to monitor and control everything in your OpenClaw workspace:
@@ -21,6 +23,20 @@ OpenClaw Dashboard gives you a single web interface to monitor and control every
 - **Logs** — Real-time log viewer with search and auto-scroll
 - **Chat** — AI chat proxy to the OpenClaw gateway
 - **Settings** — Discovery engine status, manual re-scan, system info
+
+## Screenshots
+
+| Jobs | Pipelines |
+|------|-----------|
+| ![Jobs](docs/screenshots/dashboard-jobs.png) | ![Pipelines](docs/screenshots/dashboard-pipelines.png) |
+
+| Skills | System |
+|--------|--------|
+| ![Skills](docs/screenshots/dashboard-skills.png) | ![System](docs/screenshots/dashboard-system.png) |
+
+| Metrics |
+|---------|
+| ![Metrics](docs/screenshots/dashboard-metrics.png) |
 
 ## Quick Start
 
