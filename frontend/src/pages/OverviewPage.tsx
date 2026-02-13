@@ -1,0 +1,89 @@
+import { useEffect } from 'react';
+import { useStore } from '../store';
+import { usePolling } from '../hooks/usePolling';
+import StatCard from '../components/common/StatCard';
+import { Briefcase, Cpu, HardDrive, GitBranch, Bot, Wrench, DollarSign } from 'lucide-react';
+import { formatNumber } from '../utils/format';
+import {
+  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
+  Tooltip, ResponsiveContainer,
+} from 'recharts';
+
+export default function OverviewPage() {
+  const { overview, jobs, system, timeseries, breakdown, fetchAll, fetchTimeseries, fetchBreakdown } = useStore();
+
+  useEffect(() => {
+    fetchTimeseries('tokens', 24);
+    fetchBreakdown();
+  }, []);
+
+  usePolling(() => { fetchAll(); }, 10000);
+
+  return (
+    <div className="space-y-6">
+      <h1 className="text-2xl font-bold text-white">Dashboard Overview</h1>
+
+      {/* Stats grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
+        <StatCard label="Total Jobs" value={overview?.total_jobs ?? 0} sub={`${overview?.active_jobs ?? 0} active`} icon={Briefcase} color="blue" />
+        <StatCard label="CPU" value={`${system?.cpu_percent.toFixed(0) ?? 0}%`} sub={`Load ${system?.load_average[0]?.toFixed(2) ?? ''}`} icon={Cpu} color="green" />
+        <StatCard label="Memory" value={`${system?.memory_used_gb?.toFixed(1) ?? 0}GB`} sub={`of ${system?.memory_total_gb?.toFixed(1) ?? 0}GB`} icon={HardDrive} color="purple" />
+        <StatCard label="Disk" value={`${system?.disk_percent?.toFixed(0) ?? 0}%`} sub={`${system?.disk_used_gb?.toFixed(0) ?? 0}GB used`} icon={HardDrive} color="pink" />
+        <StatCard label="Pipelines" value={overview?.pipelines_count ?? 0} icon={GitBranch} color="amber" />
+        <StatCard label="Agents" value={overview?.agents_count ?? 0} icon={Bot} color="green" />
+        <StatCard label="Skills" value={overview?.skills_count ?? 0} icon={Wrench} color="blue" />
+        <StatCard label="Cost Today" value={`$${overview?.cost_today?.toFixed(2) ?? '0.00'}`} sub={`${formatNumber(overview?.tokens_today ?? 0)} tokens`} icon={DollarSign} color="amber" />
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
+          <h3 className="text-sm font-semibold text-slate-300 mb-4">Token Usage (24h)</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={timeseries}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis dataKey="label" stroke="#94a3b8" fontSize={11} />
+              <YAxis stroke="#94a3b8" fontSize={11} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8 }} />
+              <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
+          <h3 className="text-sm font-semibold text-slate-300 mb-4">Usage by Model</h3>
+          <ResponsiveContainer width="100%" height={250}>
+            <BarChart data={breakdown?.by_model ?? []}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+              <XAxis dataKey="model" stroke="#94a3b8" fontSize={11} />
+              <YAxis stroke="#94a3b8" fontSize={11} />
+              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8 }} />
+              <Bar dataKey="tokens" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* Recent jobs summary */}
+      <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
+        <div className="px-5 py-3 border-b border-slate-700/50 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-300">Recent Jobs</h3>
+          <a href="/jobs" className="text-xs text-blue-400 hover:text-blue-300">View all</a>
+        </div>
+        <div className="divide-y divide-slate-700/50">
+          {jobs.slice(0, 5).map((j) => (
+            <div key={j.id} className="px-5 py-3 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${j.enabled ? 'bg-green-500' : 'bg-slate-500'}`} />
+                <span className="text-sm text-white">{j.name}</span>
+              </div>
+              <span className={`text-xs ${j.last_status === 'success' ? 'text-green-400' : j.last_status === 'error' ? 'text-red-400' : 'text-slate-400'}`}>
+                {j.last_status || 'pending'}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
