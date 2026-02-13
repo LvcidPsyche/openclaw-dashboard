@@ -1,10 +1,30 @@
+# Dependencies
 node_modules/
-dist/
 venv/
-__pycache__/
+*.egg-info/
+
+# Build output
+dist/
+.vite/
 *.pyc
+__pycache__/
+
+# Environment
 .env
 *.log
+
+# OS
 .DS_Store
-*.egg-info/
-.vite/
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Backups and temp files
+*.backup
+*_backup.*
+*_optimized.*
+debug.html
