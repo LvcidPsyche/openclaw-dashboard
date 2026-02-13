@@ -1,9 +1,11 @@
-"""Chat proxy to OpenClaw Gateway — HTTP and WebSocket."""
+"""Chat proxy to OpenClaw Gateway — HTTP and WebSocket.
+Handles gateway-down gracefully with clear error messages.
+"""
 
 import asyncio
 import httpx
 from fastapi import APIRouter, Request, WebSocket, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, JSONResponse
 
 from app.config import settings
 
@@ -17,23 +19,41 @@ def _headers():
     return h
 
 
+@router.get("/api/chat/status")
+async def chat_status():
+    """Check if the gateway is reachable before attempting chat."""
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(f"{settings.gateway_url}/health", timeout=1.0)
+            return {"available": resp.status_code == 200, "gateway": settings.gateway_url}
+    except Exception:
+        return {"available": False, "gateway": settings.gateway_url}
+
+
 @router.post("/api/chat")
 async def chat_proxy(request: Request):
     data = await request.json()
     message = data.get("message", "")
     if not message:
         raise HTTPException(status_code=400, detail="Message is required")
-
-    async with httpx.AsyncClient() as client:
-        resp = await client.post(
-            f"{settings.gateway_url}/api/chat",
-            json={"message": message, "session_id": data.get("sessionId", "dashboard")},
-            headers=_headers(),
-            timeout=60.0,
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.post(
+                f"{settings.gateway_url}/api/chat",
+                json={"message": message, "session_id": data.get("sessionId", "dashboard")},
+                headers=_headers(),
+                timeout=30.0,
+            )
+            if resp.status_code == 200:
+                return resp.json()
+            raise HTTPException(status_code=resp.status_code, detail="Gateway error")
+    except httpx.ConnectError:
+        return JSONResponse(
+            {"error": "OpenClaw gateway is not running. Start it with: openclaw gateway start"},
+            status_code=503,
         )
-        if resp.status_code == 200:
-            return resp.json()
-        raise HTTPException(status_code=resp.status_code, detail="Gateway error")
+    except httpx.TimeoutException:
+        return JSONResponse({"error": "Gateway timeout"}, status_code=504)
 
 
 @router.post("/api/chat/stream")
@@ -44,16 +64,19 @@ async def chat_stream(request: Request):
         raise HTTPException(status_code=400, detail="Message is required")
 
     async def generate():
-        async with httpx.AsyncClient() as client:
-            async with client.stream(
-                "POST",
-                f"{settings.gateway_url}/api/chat/stream",
-                json={"message": message, "session_id": data.get("sessionId", "dashboard")},
-                headers=_headers(),
-                timeout=120.0,
-            ) as resp:
-                async for chunk in resp.aiter_text():
-                    yield chunk
+        try:
+            async with httpx.AsyncClient() as client:
+                async with client.stream(
+                    "POST",
+                    f"{settings.gateway_url}/api/chat/stream",
+                    json={"message": message, "session_id": data.get("sessionId", "dashboard")},
+                    headers=_headers(),
+                    timeout=60.0,
+                ) as resp:
+                    async for chunk in resp.aiter_text():
+                        yield chunk
+        except (httpx.ConnectError, httpx.TimeoutException):
+            yield '{"error":"Gateway unavailable"}'
 
     return StreamingResponse(generate(), media_type="text/event-stream")
 
@@ -64,7 +87,7 @@ async def websocket_chat(websocket: WebSocket):
     try:
         import websockets
         uri = f"{settings.gateway_ws_url}?token={settings.gateway_token}"
-        async with websockets.connect(uri) as gw:
+        async with websockets.connect(uri, open_timeout=3) as gw:
             async def to_client():
                 try:
                     async for msg in gw:
@@ -81,9 +104,12 @@ async def websocket_chat(websocket: WebSocket):
                     pass
 
             await asyncio.gather(to_client(), to_gateway(), return_exceptions=True)
-    except Exception as e:
+    except Exception:
         try:
-            await websocket.send_json({"error": str(e), "type": "connection_error"})
+            await websocket.send_json({
+                "type": "connection_error",
+                "error": "Gateway unavailable. Start with: openclaw gateway start",
+            })
         except Exception:
             pass
     finally:

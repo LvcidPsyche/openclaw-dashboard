@@ -5,7 +5,7 @@ custom modules. Results are cached and refreshed periodically.
 """
 
 import json
-import os
+import re
 import subprocess
 import time
 from datetime import datetime, timedelta
@@ -143,7 +143,6 @@ def _check_heartbeat(pipelines: List[Dict], seen_ids: set):
     try:
         content = hb.read_text()
         for line in content.split("\n"):
-            import re
             m = re.match(r"^#+\s+(HYDROFLOW|YouTube|Pipeline|Orchestrator|Content|Market)", line, re.IGNORECASE)
             if m:
                 name = line.lstrip("#").strip()

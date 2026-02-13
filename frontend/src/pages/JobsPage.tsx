@@ -12,7 +12,7 @@ export default function JobsPage() {
   const [sortKey, setSortKey] = useState<'name' | 'last_run' | 'schedule'>('name');
   const [sortAsc, setSortAsc] = useState(true);
 
-  usePolling(fetchJobs, 5000);
+  usePolling(fetchJobs, 10000);
 
   const filtered = jobs
     .filter((j) => j.name.toLowerCase().includes(search.toLowerCase()))
