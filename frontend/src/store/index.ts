@@ -38,6 +38,7 @@ interface DashboardStore {
   fetchBreakdown: () => Promise<void>;
   controlJob: (jobId: string, action: string) => Promise<void>;
   addChatMessage: (msg: ChatMessage) => void;
+  updateLastChatMessage: (delta: string) => void;
   fetchLogFiles: () => Promise<void>;
   setSidebarOpen: (open: boolean) => void;
 }
@@ -143,6 +144,18 @@ export const useStore = create<DashboardStore>((set, get) => ({
 
   addChatMessage: (msg) => {
     set((s) => ({ chatMessages: [...s.chatMessages, msg] }));
+  },
+
+  updateLastChatMessage: (delta) => {
+    set((s) => {
+      const msgs = [...s.chatMessages];
+      if (msgs.length > 0) {
+        const last = { ...msgs[msgs.length - 1] };
+        last.content += delta;
+        msgs[msgs.length - 1] = last;
+      }
+      return { chatMessages: msgs };
+    });
   },
 
   fetchLogFiles: async () => {

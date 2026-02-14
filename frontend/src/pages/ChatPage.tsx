@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../store';
-import { Send, Plug, WifiOff } from 'lucide-react';
+import { Send, WifiOff, Loader2 } from 'lucide-react';
 
 export default function ChatPage() {
-  const { chatMessages, addChatMessage } = useStore();
+  const { chatMessages, addChatMessage, updateLastChatMessage } = useStore();
   const [input, setInput] = useState('');
   const [ws, setWs] = useState<WebSocket | null>(null);
   const [connected, setConnected] = useState(false);
   const [gatewayUp, setGatewayUp] = useState<boolean | null>(null);
-  const [model, setModel] = useState('kimi-k2.5');
+  const [sending, setSending] = useState(false);
+  const [streamingId, setStreamingId] = useState<string | null>(null);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -19,56 +20,93 @@ export default function ChatPage() {
   useEffect(() => {
     fetch('/api/chat/status')
       .then((r) => r.json())
-      .then((d) => setGatewayUp(d.available))
+      .then((d) => {
+        setGatewayUp(d.available);
+        // Auto-connect if gateway is up
+        if (d.available) connectWs();
+      })
       .catch(() => setGatewayUp(false));
   }, []);
 
-  const connect = () => {
+  const connectWs = useCallback(() => {
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const socket = new WebSocket(`${proto}//${window.location.host}/ws/chat`);
-    socket.onopen = () => {
-      setConnected(true);
-      addChatMessage({ id: crypto.randomUUID(), role: 'system', content: 'Connected to OpenClaw gateway', timestamp: Date.now() });
-    };
+    socket.onopen = () => setConnected(true);
     socket.onmessage = (e) => {
       try {
         const data = JSON.parse(e.data);
+
         if (data.type === 'connection_error') {
           addChatMessage({ id: crypto.randomUUID(), role: 'system', content: data.error, timestamp: Date.now() });
           return;
         }
-        addChatMessage({
-          id: crypto.randomUUID(), role: 'assistant',
-          content: data.content || data.message || JSON.stringify(data),
-          timestamp: Date.now(),
-        });
+
+        if (data.type === 'system') {
+          addChatMessage({ id: crypto.randomUUID(), role: 'system', content: data.content, timestamp: Date.now() });
+          setGatewayUp(true);
+          return;
+        }
+
+        // Streaming delta — append to the last assistant message
+        if (data.type === 'delta') {
+          setStreamingId((prev) => {
+            if (!prev) {
+              const newId = crypto.randomUUID();
+              addChatMessage({ id: newId, role: 'assistant', content: data.content, timestamp: Date.now() });
+              return newId;
+            }
+            updateLastChatMessage(data.content);
+            return prev;
+          });
+          return;
+        }
+
+        // Final complete message
+        if (data.type === 'message') {
+          setStreamingId(null);
+          setSending(false);
+          // If we were streaming, the last message already has the full text via deltas
+          // But replace it with the final version for accuracy
+          return;
+        }
+
+        // Done signal
+        if (data.type === 'done') {
+          setStreamingId(null);
+          setSending(false);
+          return;
+        }
+
       } catch {
         addChatMessage({ id: crypto.randomUUID(), role: 'assistant', content: e.data, timestamp: Date.now() });
       }
     };
-    socket.onerror = () => {
-      setGatewayUp(false);
-    };
+    socket.onerror = () => setGatewayUp(false);
     socket.onclose = () => {
       setConnected(false);
+      setStreamingId(null);
+      setSending(false);
     };
     setWs(socket);
-  };
+  }, [addChatMessage, updateLastChatMessage]);
 
   const sendMessage = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || sending) return;
     const text = input;
     setInput('');
+    setSending(true);
+    setStreamingId(null);
     addChatMessage({ id: crypto.randomUUID(), role: 'user', content: text, timestamp: Date.now() });
 
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ role: 'user', content: text, model }));
+      ws.send(JSON.stringify({ content: text }));
     } else {
+      // HTTP fallback
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, sessionId: 'dashboard' }),
+          body: JSON.stringify({ message: text }),
         });
         const data = await res.json();
         if (data.error) {
@@ -79,6 +117,7 @@ export default function ChatPage() {
       } catch {
         addChatMessage({ id: crypto.randomUUID(), role: 'system', content: 'Failed to send — gateway may be offline', timestamp: Date.now() });
       }
+      setSending(false);
     }
   };
 
@@ -93,14 +132,19 @@ export default function ChatPage() {
               Gateway offline
             </span>
           )}
-          <button
-            onClick={connect}
-            disabled={connected}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${connected ? 'bg-green-600/20 text-green-400 border border-green-500/30' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
-          >
-            <Plug size={14} />
-            {connected ? 'Connected' : 'Connect'}
-          </button>
+          {connected && (
+            <span className="flex items-center gap-1.5 text-xs text-green-400 bg-green-500/10 border border-green-500/30 px-3 py-1.5 rounded-lg">
+              Connected
+            </span>
+          )}
+          {!connected && gatewayUp && (
+            <button
+              onClick={connectWs}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+            >
+              Reconnect
+            </button>
+          )}
         </div>
       </div>
 
@@ -130,24 +174,27 @@ export default function ChatPage() {
             </div>
           </div>
         ))}
+        {sending && !streamingId && (
+          <div className="flex justify-start">
+            <div className="bg-slate-700/50 text-slate-400 rounded-xl px-4 py-3">
+              <Loader2 size={16} className="animate-spin" />
+            </div>
+          </div>
+        )}
         <div ref={endRef} />
       </div>
 
       <div className="flex gap-2">
-        <select value={model} onChange={(e) => setModel(e.target.value)}
-          className="px-3 py-2 bg-slate-800 text-white rounded-lg border border-slate-700 text-sm">
-          <option value="kimi-k2.5">Kimi K2.5</option>
-          <option value="pony-alpha">Pony Alpha</option>
-          <option value="claude-sonnet">Claude Sonnet</option>
-        </select>
         <input value={input} onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-          placeholder="Type a message..."
-          className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg border border-slate-700 text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500"
+          onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
+          placeholder={connected ? "Type a message..." : "Connecting to gateway..."}
+          disabled={!connected && gatewayUp !== true}
+          className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg border border-slate-700 text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50"
         />
         <button onClick={sendMessage}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-          <Send size={16} />
+          disabled={sending || (!connected && gatewayUp !== true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:hover:bg-blue-600">
+          {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
         </button>
       </div>
     </div>
