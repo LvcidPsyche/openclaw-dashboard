@@ -34,9 +34,9 @@ OpenClaw Dashboard gives you a single web interface to monitor and control every
 |--------|--------|
 | ![Skills](docs/screenshots/dashboard-skills.png) | ![System](docs/screenshots/dashboard-system.png) |
 
-| Metrics |
-|---------|
-| ![Metrics](docs/screenshots/dashboard-metrics.png) |
+| Metrics | Chat |
+|---------|------|
+| ![Metrics](docs/screenshots/dashboard-metrics.png) | ![Chat](docs/screenshots/dashboard-chat.png) |
 
 ## Quick Start
 
