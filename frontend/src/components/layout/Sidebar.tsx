@@ -1,9 +1,24 @@
+import { useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useStore } from '../../store';
 import {
   LayoutDashboard, Briefcase, GitBranch, Bot, Wrench,
   BarChart3, Monitor, FileText, MessageSquare, Settings, PanelLeftClose, PanelLeft,
 } from 'lucide-react';
+
+// Lazy import map — prefetch chunk on hover so navigation feels instant
+const prefetchMap: Record<string, () => void> = {
+  '/': () => import('../../pages/OverviewPage'),
+  '/jobs': () => import('../../pages/JobsPage'),
+  '/pipelines': () => import('../../pages/PipelinesPage'),
+  '/agents': () => import('../../pages/AgentsPage'),
+  '/skills': () => import('../../pages/SkillsPage'),
+  '/metrics': () => import('../../pages/MetricsPage'),
+  '/system': () => import('../../pages/SystemPage'),
+  '/logs': () => import('../../pages/LogsPage'),
+  '/chat': () => import('../../pages/ChatPage'),
+  '/settings': () => import('../../pages/SettingsPage'),
+};
 
 const links = [
   { to: '/', icon: LayoutDashboard, label: 'Overview' },
@@ -20,6 +35,10 @@ const links = [
 
 export default function Sidebar() {
   const { sidebarOpen, setSidebarOpen } = useStore();
+
+  const prefetch = useCallback((to: string) => {
+    prefetchMap[to]?.();
+  }, []);
 
   return (
     <aside className={`${sidebarOpen ? 'w-56' : 'w-16'} bg-slate-900 border-r border-slate-700/50 flex flex-col transition-all duration-200 shrink-0`}>
@@ -38,6 +57,7 @@ export default function Sidebar() {
             key={to}
             to={to}
             end={to === '/'}
+            onMouseEnter={() => prefetch(to)}
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                 isActive

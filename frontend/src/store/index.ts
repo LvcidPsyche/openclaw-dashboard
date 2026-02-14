@@ -61,7 +61,8 @@ export const useStore = create<DashboardStore>((set, get) => ({
   error: null,
 
   fetchAll: async () => {
-    set({ loading: true, error: null });
+    const isFirstLoad = !get().overview;
+    if (isFirstLoad) set({ loading: true, error: null });
     try {
       const [ov, jobsData, sys] = await Promise.all([
         api.fetchOverview(),

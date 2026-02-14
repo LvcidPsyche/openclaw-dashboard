@@ -1,8 +1,15 @@
+import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import { useStore } from '../../store';
 
 export default function Layout() {
+  const fetchAll = useStore((s) => s.fetchAll);
+
+  // Kick off initial data load so header/sidebar populate immediately
+  useEffect(() => { fetchAll(); }, []);
+
   return (
     <div className="h-screen flex bg-slate-950 text-slate-200 overflow-hidden">
       <Sidebar />

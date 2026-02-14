@@ -1,16 +1,15 @@
-import { useEffect } from 'react';
+import { useEffect, lazy, Suspense } from 'react';
 import { useStore } from '../store';
 import { usePolling } from '../hooks/usePolling';
 import StatCard from '../components/common/StatCard';
 import { Briefcase, Cpu, HardDrive, GitBranch, Bot, Wrench, DollarSign } from 'lucide-react';
 import { formatNumber } from '../utils/format';
-import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
-  Tooltip, ResponsiveContainer,
-} from 'recharts';
+
+// Lazy load charts so stat cards render instantly
+const OverviewCharts = lazy(() => import('../components/features/OverviewCharts'));
 
 export default function OverviewPage() {
-  const { overview, jobs, system, timeseries, breakdown, fetchAll, fetchTimeseries, fetchBreakdown } = useStore();
+  const { overview, jobs, system, fetchAll, fetchTimeseries, fetchBreakdown } = useStore();
 
   useEffect(() => {
     fetchTimeseries('tokens', 24);
@@ -23,7 +22,7 @@ export default function OverviewPage() {
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-white">Dashboard Overview</h1>
 
-      {/* Stats grid */}
+      {/* Stats grid — renders immediately */}
       <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-8 gap-4">
         <StatCard label="Total Jobs" value={overview?.total_jobs ?? 0} sub={`${overview?.active_jobs ?? 0} active`} icon={Briefcase} color="blue" />
         <StatCard label="CPU" value={`${system?.cpu_percent.toFixed(0) ?? 0}%`} sub={`Load ${system?.load_average[0]?.toFixed(2) ?? ''}`} icon={Cpu} color="green" />
@@ -35,36 +34,12 @@ export default function OverviewPage() {
         <StatCard label="Cost Today" value={`$${overview?.cost_today?.toFixed(2) ?? '0.00'}`} sub={`${formatNumber(overview?.tokens_today ?? 0)} tokens`} icon={DollarSign} color="amber" />
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
-          <h3 className="text-sm font-semibold text-slate-300 mb-4">Token Usage (24h)</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <LineChart data={timeseries}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="label" stroke="#94a3b8" fontSize={11} />
-              <YAxis stroke="#94a3b8" fontSize={11} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8 }} />
-              <Line type="monotone" dataKey="value" stroke="#3b82f6" strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
+      {/* Charts — load async after stats are visible */}
+      <Suspense fallback={<div className="grid grid-cols-1 lg:grid-cols-2 gap-6"><div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50 h-[310px]" /><div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50 h-[310px]" /></div>}>
+        <OverviewCharts />
+      </Suspense>
 
-        <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
-          <h3 className="text-sm font-semibold text-slate-300 mb-4">Usage by Model</h3>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={breakdown?.by_model ?? []}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="model" stroke="#94a3b8" fontSize={11} />
-              <YAxis stroke="#94a3b8" fontSize={11} />
-              <Tooltip contentStyle={{ backgroundColor: '#1e293b', border: '1px solid #475569', borderRadius: 8 }} />
-              <Bar dataKey="tokens" fill="#3b82f6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      {/* Recent jobs summary */}
+      {/* Recent jobs summary — renders immediately */}
       <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-700/50 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-300">Recent Jobs</h3>
