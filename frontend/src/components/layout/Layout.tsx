@@ -2,10 +2,14 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Header from './Header';
+import ToastContainer from '../common/Toast';
 import { useStore } from '../../store';
+import { useKeyboardShortcuts } from '../../hooks/useKeyboardShortcuts';
 
 export default function Layout() {
   const fetchAll = useStore((s) => s.fetchAll);
+
+  useKeyboardShortcuts();
 
   // Kick off initial data load so header/sidebar populate immediately
   useEffect(() => { fetchAll(); }, []);
@@ -19,6 +23,7 @@ export default function Layout() {
           <Outlet />
         </main>
       </div>
+      <ToastContainer />
     </div>
   );
 }

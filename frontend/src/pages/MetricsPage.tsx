@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store';
 import { formatNumber } from '../utils/format';
+import { Download } from 'lucide-react';
 import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, PieChart, Pie, Cell,
@@ -21,24 +22,36 @@ export default function MetricsPage() {
   const totalTokens = breakdown?.by_model?.reduce((a, b) => a + b.tokens, 0) ?? 0;
   const totalCost = breakdown?.by_model?.reduce((a, b) => a + b.cost, 0) ?? 0;
 
+  const exportCsv = () => {
+    if (!breakdown?.by_model) return;
+    const header = 'Model,Tokens,Cost,Requests\n';
+    const rows = breakdown.by_model.map(m => `"${m.model}",${m.tokens},${m.cost},${m.requests}`).join('\n');
+    const blob = new Blob([header + rows], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'token-metrics.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white">Metrics</h1>
-        <div className="flex gap-2">
-          {[6, 12, 24, 48, 168].map((h) => (
-            <button
-              key={h}
-              onClick={() => setHours(h)}
-              className={`px-3 py-1 text-xs rounded-lg ${hours === h ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
-            >
-              {h < 48 ? `${h}h` : `${h / 24}d`}
-            </button>
-          ))}
+        <div className="flex items-center gap-3">
+          <button onClick={exportCsv} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white" title="Export CSV">
+            <Download size={16} />
+          </button>
+          <div className="flex gap-2">
+            {[6, 12, 24, 48, 168].map((h) => (
+              <button key={h} onClick={() => setHours(h)}
+                className={`px-3 py-1 text-xs rounded-lg ${hours === h ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400 hover:text-white'}`}>
+                {h < 48 ? `${h}h` : `${h / 24}d`}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Summary cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700/50">
           <div className="text-xs text-slate-400">Total Tokens</div>
@@ -58,20 +71,15 @@ export default function MetricsPage() {
         </div>
       </div>
 
-      {/* Metric toggle */}
       <div className="flex gap-2">
         {(['tokens', 'cost'] as const).map((m) => (
-          <button
-            key={m}
-            onClick={() => setMetric(m)}
-            className={`px-4 py-1.5 text-sm rounded-lg capitalize ${metric === m ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}`}
-          >
+          <button key={m} onClick={() => setMetric(m)}
+            className={`px-4 py-1.5 text-sm rounded-lg capitalize ${metric === m ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-400'}`}>
             {m}
           </button>
         ))}
       </div>
 
-      {/* Time series chart */}
       <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
         <h3 className="text-sm font-semibold text-slate-300 mb-4">{metric === 'tokens' ? 'Token Usage' : 'Cost'} Over Time</h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -86,7 +94,6 @@ export default function MetricsPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Donut chart */}
         <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
           <h3 className="text-sm font-semibold text-slate-300 mb-4">Usage by Model</h3>
           <ResponsiveContainer width="100%" height={250}>
@@ -109,7 +116,6 @@ export default function MetricsPage() {
           </div>
         </div>
 
-        {/* Daily trend */}
         <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
           <h3 className="text-sm font-semibold text-slate-300 mb-4">Daily Trend</h3>
           <ResponsiveContainer width="100%" height={250}>

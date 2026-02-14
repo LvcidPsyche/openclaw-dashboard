@@ -25,6 +25,30 @@ export interface JobStatus {
   error_message: string | null;
 }
 
+export interface CronJobCreate {
+  name: string;
+  scheduleType: 'cron' | 'interval';
+  cronExpression?: string;
+  intervalMs?: number;
+  agent?: string;
+  model?: string;
+  message?: string;
+  timeout?: number;
+  enabled?: boolean;
+}
+
+export interface CronJobUpdate extends Partial<CronJobCreate> {
+  id?: string;
+}
+
+export interface CronJobRun {
+  ts: number;
+  status: string;
+  durationMs?: number;
+  error?: string;
+  jobId?: string;
+}
+
 export interface SystemResources {
   cpu_percent: number;
   memory_percent: number;
@@ -129,6 +153,7 @@ export interface DeviceInfo {
   role: string;
   last_used: string;
   created_at: string;
+  status?: string;
 }
 
 export interface LogFile {
@@ -144,4 +169,57 @@ export interface ChatMessage {
   content: string;
   timestamp: number;
   streaming?: boolean;
+}
+
+// Config types
+export interface ConfigData {
+  [key: string]: any;
+}
+
+// Node types
+export interface NodeInfo {
+  id: string;
+  status: string;
+  platform?: string;
+  capabilities?: string[];
+  lastSeen?: string;
+}
+
+// Debug types
+export interface GatewayStatus {
+  connected: boolean;
+  latency_ms: number;
+  gateway_url: string;
+  protocol_version: number;
+  error?: string;
+}
+
+export interface FilesystemCheck {
+  path: string;
+  exists: boolean;
+  readable: boolean;
+}
+
+// Session management types
+export interface SessionDetail {
+  id: string;
+  model?: string;
+  messages?: number;
+  status?: string;
+  started?: string;
+  last_activity?: string;
+  thinking?: boolean;
+  reasoningLevel?: string;
+  usage?: {
+    input_tokens?: number;
+    output_tokens?: number;
+    cost?: number;
+  };
+}
+
+export interface ModelInfo {
+  id?: string;
+  name?: string;
+  provider?: string;
+  context_length?: number;
 }

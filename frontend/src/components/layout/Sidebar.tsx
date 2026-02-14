@@ -2,8 +2,9 @@ import { useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useStore } from '../../store';
 import {
-  LayoutDashboard, Briefcase, GitBranch, Bot, Wrench,
-  BarChart3, Monitor, FileText, MessageSquare, Settings, PanelLeftClose, PanelLeft,
+  LayoutDashboard, Briefcase, GitBranch, Bot, Wrench, Cog,
+  Network, BarChart3, Monitor, FileText, Bug, BookOpen,
+  MessageSquare, Users, Settings, PanelLeftClose, PanelLeft,
 } from 'lucide-react';
 
 // Lazy import map — prefetch chunk on hover so navigation feels instant
@@ -13,10 +14,15 @@ const prefetchMap: Record<string, () => void> = {
   '/pipelines': () => import('../../pages/PipelinesPage'),
   '/agents': () => import('../../pages/AgentsPage'),
   '/skills': () => import('../../pages/SkillsPage'),
+  '/config': () => import('../../pages/ConfigPage'),
+  '/nodes': () => import('../../pages/NodesPage'),
   '/metrics': () => import('../../pages/MetricsPage'),
   '/system': () => import('../../pages/SystemPage'),
   '/logs': () => import('../../pages/LogsPage'),
+  '/debug': () => import('../../pages/DebugPage'),
+  '/docs': () => import('../../pages/DocsPage'),
   '/chat': () => import('../../pages/ChatPage'),
+  '/sessions': () => import('../../pages/SessionsPage'),
   '/settings': () => import('../../pages/SettingsPage'),
 };
 
@@ -26,10 +32,15 @@ const links = [
   { to: '/pipelines', icon: GitBranch, label: 'Pipelines' },
   { to: '/agents', icon: Bot, label: 'Agents' },
   { to: '/skills', icon: Wrench, label: 'Skills' },
+  { to: '/config', icon: Cog, label: 'Config' },
+  { to: '/nodes', icon: Network, label: 'Nodes' },
   { to: '/metrics', icon: BarChart3, label: 'Metrics' },
   { to: '/system', icon: Monitor, label: 'System' },
   { to: '/logs', icon: FileText, label: 'Logs' },
+  { to: '/debug', icon: Bug, label: 'Debug' },
+  { to: '/docs', icon: BookOpen, label: 'Docs' },
   { to: '/chat', icon: MessageSquare, label: 'Chat' },
+  { to: '/sessions', icon: Users, label: 'Sessions' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
 

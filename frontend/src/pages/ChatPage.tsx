@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../store';
-import { Send, WifiOff, Loader2 } from 'lucide-react';
+import { Send, WifiOff, Loader2, Brain } from 'lucide-react';
+import * as api from '../api/endpoints';
 
 export default function ChatPage() {
   const { chatMessages, addChatMessage, updateLastChatMessage } = useStore();
@@ -10,22 +11,24 @@ export default function ChatPage() {
   const [gatewayUp, setGatewayUp] = useState<boolean | null>(null);
   const [sending, setSending] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
+  const [models, setModels] = useState<any[]>([]);
+  const [selectedModel, setSelectedModel] = useState('');
+  const [thinking, setThinking] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatMessages]);
 
-  // Check gateway status on mount
   useEffect(() => {
     fetch('/api/chat/status')
       .then((r) => r.json())
       .then((d) => {
         setGatewayUp(d.available);
-        // Auto-connect if gateway is up
         if (d.available) connectWs();
       })
       .catch(() => setGatewayUp(false));
+    api.fetchModels().then((d) => setModels(d.models || [])).catch(() => {});
   }, []);
 
   const connectWs = useCallback(() => {
@@ -40,14 +43,11 @@ export default function ChatPage() {
           addChatMessage({ id: crypto.randomUUID(), role: 'system', content: data.error, timestamp: Date.now() });
           return;
         }
-
         if (data.type === 'system') {
           addChatMessage({ id: crypto.randomUUID(), role: 'system', content: data.content, timestamp: Date.now() });
           setGatewayUp(true);
           return;
         }
-
-        // Streaming delta — append to the last assistant message
         if (data.type === 'delta') {
           setStreamingId((prev) => {
             if (!prev) {
@@ -60,33 +60,22 @@ export default function ChatPage() {
           });
           return;
         }
-
-        // Final complete message
         if (data.type === 'message') {
           setStreamingId(null);
           setSending(false);
-          // If we were streaming, the last message already has the full text via deltas
-          // But replace it with the final version for accuracy
           return;
         }
-
-        // Done signal
         if (data.type === 'done') {
           setStreamingId(null);
           setSending(false);
           return;
         }
-
       } catch {
         addChatMessage({ id: crypto.randomUUID(), role: 'assistant', content: e.data, timestamp: Date.now() });
       }
     };
     socket.onerror = () => setGatewayUp(false);
-    socket.onclose = () => {
-      setConnected(false);
-      setStreamingId(null);
-      setSending(false);
-    };
+    socket.onclose = () => { setConnected(false); setStreamingId(null); setSending(false); };
     setWs(socket);
   }, [addChatMessage, updateLastChatMessage]);
 
@@ -99,14 +88,13 @@ export default function ChatPage() {
     addChatMessage({ id: crypto.randomUUID(), role: 'user', content: text, timestamp: Date.now() });
 
     if (ws && ws.readyState === WebSocket.OPEN) {
-      ws.send(JSON.stringify({ content: text }));
+      ws.send(JSON.stringify({ content: text, model: selectedModel || undefined, thinking }));
     } else {
-      // HTTP fallback
       try {
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text }),
+          body: JSON.stringify({ message: text, model: selectedModel || undefined }),
         });
         const data = await res.json();
         if (data.error) {
@@ -126,10 +114,29 @@ export default function ChatPage() {
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold text-white">AI Chat</h1>
         <div className="flex items-center gap-3">
+          {/* Model selector */}
+          {models.length > 0 && (
+            <select value={selectedModel} onChange={(e) => setSelectedModel(e.target.value)}
+              className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white">
+              <option value="">Default model</option>
+              {models.map((m: any, i: number) => (
+                <option key={i} value={m.id || m.name || m}>{m.name || m.id || m}</option>
+              ))}
+            </select>
+          )}
+
+          {/* Thinking toggle */}
+          <button onClick={() => setThinking(!thinking)}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors ${
+              thinking ? 'bg-purple-600/20 text-purple-400 border-purple-500/30' : 'bg-slate-800 text-slate-400 border-slate-700'
+            }`} title="Extended Thinking">
+            <Brain size={14} />
+            {thinking ? 'Thinking ON' : 'Thinking'}
+          </button>
+
           {gatewayUp === false && (
             <span className="flex items-center gap-1.5 text-xs text-amber-400 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-lg">
-              <WifiOff size={12} />
-              Gateway offline
+              <WifiOff size={12} /> Gateway offline
             </span>
           )}
           {connected && (
@@ -138,10 +145,8 @@ export default function ChatPage() {
             </span>
           )}
           {!connected && gatewayUp && (
-            <button
-              onClick={connectWs}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
+            <button onClick={connectWs}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
               Reconnect
             </button>
           )}
@@ -189,8 +194,7 @@ export default function ChatPage() {
           onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && sendMessage()}
           placeholder={connected ? "Type a message..." : "Connecting to gateway..."}
           disabled={!connected && gatewayUp !== true}
-          className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg border border-slate-700 text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50"
-        />
+          className="flex-1 px-4 py-2 bg-slate-800 text-white rounded-lg border border-slate-700 text-sm placeholder-slate-500 focus:outline-none focus:border-blue-500 disabled:opacity-50" />
         <button onClick={sendMessage}
           disabled={sending || (!connected && gatewayUp !== true)}
           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:hover:bg-blue-600">

@@ -13,7 +13,12 @@ from fastapi.responses import FileResponse, JSONResponse
 from app.config import settings
 from app.discovery.engine import run_discovery, needs_refresh
 from app.websocket.manager import manager
-from app.routers import overview, jobs, metrics, system, sessions, chat, logs, discovery
+from app.middleware.security import SecurityHeadersMiddleware, RequestSizeLimitMiddleware
+from app.routers import (
+    overview, jobs, metrics, system, sessions, chat, logs, discovery,
+)
+from app.routers import config as config_router
+from app.routers import nodes, debug, sessions_mgmt
 
 
 async def _discovery_loop():
@@ -43,19 +48,27 @@ app = FastAPI(
     version="2.0.0",
     lifespan=lifespan,
     docs_url="/docs",
-    redoc_url=None,  # disable redoc to save a route
+    redoc_url=None,
 )
 
+# Security middleware (outermost = processes first)
+app.add_middleware(SecurityHeadersMiddleware)
+app.add_middleware(RequestSizeLimitMiddleware, max_size=2_097_152)  # 2MB
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+        "http://localhost:8765",
+        "http://127.0.0.1:8765",
+        f"http://{settings.host}:8765" if settings.host != "0.0.0.0" else "http://localhost:8765",
+        "http://76.13.114.80:8765",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# Mount routers
+# Mount all routers
 app.include_router(overview.router)
 app.include_router(jobs.router)
 app.include_router(metrics.router)
@@ -64,6 +77,10 @@ app.include_router(sessions.router)
 app.include_router(chat.router)
 app.include_router(logs.router)
 app.include_router(discovery.router)
+app.include_router(config_router.router)
+app.include_router(nodes.router)
+app.include_router(debug.router)
+app.include_router(sessions_mgmt.router)
 
 
 # WebSocket for real-time overview updates

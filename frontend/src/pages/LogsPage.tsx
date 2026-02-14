@@ -3,7 +3,7 @@ import { fetchLogFiles, fetchLogTail } from '../api/endpoints';
 import type { LogFile } from '../api/types';
 import { formatBytes } from '../utils/format';
 import EmptyState from '../components/common/EmptyState';
-import { FileText, RefreshCw } from 'lucide-react';
+import { FileText, RefreshCw, Download } from 'lucide-react';
 
 export default function LogsPage() {
   const [files, setFiles] = useState<LogFile[]>([]);
@@ -38,6 +38,15 @@ export default function LogsPage() {
     fetchLogTail(selected, 200).then((d) => setLines(d.lines)).catch(() => {});
   };
 
+  const downloadLog = () => {
+    if (!lines.length) return;
+    const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = selected || 'log.txt'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filtered = search
     ? lines.filter((l) => l.toLowerCase().includes(search.toLowerCase()))
     : lines;
@@ -51,6 +60,9 @@ export default function LogsPage() {
             <input type="checkbox" checked={autoScroll} onChange={(e) => setAutoScroll(e.target.checked)} className="rounded" />
             Auto-scroll
           </label>
+          <button onClick={downloadLog} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white" title="Download log">
+            <Download size={16} />
+          </button>
           <button onClick={loadLogs} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white">
             <RefreshCw size={16} />
           </button>
@@ -58,14 +70,10 @@ export default function LogsPage() {
       </div>
 
       <div className="flex gap-4 flex-1 min-h-0">
-        {/* File list */}
         <div className="w-56 shrink-0 space-y-1">
           {files.map((f) => (
-            <button
-              key={f.name}
-              onClick={() => setSelected(f.name)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${selected === f.name ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}
-            >
+            <button key={f.name} onClick={() => setSelected(f.name)}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${selected === f.name ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
               <FileText size={14} />
               <div className="truncate flex-1">
                 <div className="truncate">{f.name}</div>
@@ -75,15 +83,11 @@ export default function LogsPage() {
           ))}
         </div>
 
-        {/* Log output */}
         <div className="flex-1 flex flex-col min-h-0">
           <div className="mb-2">
-            <input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
+            <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter logs..."
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
-            />
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
           </div>
           <div ref={logRef} className="flex-1 bg-slate-900 rounded-xl border border-slate-700/50 p-4 overflow-y-auto font-mono text-xs">
             {filtered.length === 0 ? (
