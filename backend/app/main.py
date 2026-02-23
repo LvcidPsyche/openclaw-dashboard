@@ -18,7 +18,7 @@ from app.routers import (
     overview, jobs, metrics, system, sessions, chat, logs, discovery,
 )
 from app.routers import config as config_router
-from app.routers import nodes, debug, sessions_mgmt
+from app.routers import nodes, debug, sessions_mgmt, files
 
 
 async def _discovery_loop():
@@ -81,6 +81,7 @@ app.include_router(config_router.router)
 app.include_router(nodes.router)
 app.include_router(debug.router)
 app.include_router(sessions_mgmt.router)
+app.include_router(files.router)
 
 
 # WebSocket for real-time overview updates

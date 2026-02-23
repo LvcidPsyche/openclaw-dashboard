@@ -75,9 +75,8 @@ async def gateway_call(
     Returns the full response dict. Raises on connection or timeout errors.
     """
     uri = settings.gateway_ws_url
-    headers = {"Origin": "http://localhost:8765"}
 
-    async with websockets.connect(uri, open_timeout=3, additional_headers=headers) as gw:
+    async with websockets.connect(uri, open_timeout=3) as gw:
         if not await _handshake(gw):
             raise ConnectionError("Gateway authentication failed")
 
@@ -120,9 +119,8 @@ async def gateway_call_streaming(
 ) -> AsyncGenerator[Dict[str, Any], None]:
     """Open WebSocket, perform handshake, send RPC request, yield events."""
     uri = settings.gateway_ws_url
-    headers = {"Origin": "http://localhost:8765"}
 
-    async with websockets.connect(uri, open_timeout=3, additional_headers=headers) as gw:
+    async with websockets.connect(uri, open_timeout=3) as gw:
         if not await _handshake(gw):
             raise ConnectionError("Gateway authentication failed")
 
@@ -172,8 +170,7 @@ async def gateway_health_check() -> bool:
     """Quick check if gateway WebSocket is reachable and auth works."""
     try:
         uri = settings.gateway_ws_url
-        headers = {"Origin": "http://localhost:8765"}
-        async with websockets.connect(uri, open_timeout=2, additional_headers=headers) as gw:
+        async with websockets.connect(uri, open_timeout=2) as gw:
             return await _handshake(gw)
     except Exception:
         return False

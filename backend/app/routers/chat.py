@@ -40,8 +40,7 @@ async def chat_proxy(request_data: dict):
 
     try:
         uri = settings.gateway_ws_url
-        headers = {"Origin": "http://localhost:8765"}
-        async with websockets.connect(uri, open_timeout=3, additional_headers=headers) as gw:
+        async with websockets.connect(uri, open_timeout=3) as gw:
             if not await _handshake(gw):
                 return JSONResponse({"error": "Gateway authentication failed"}, status_code=502)
 
@@ -108,8 +107,7 @@ async def websocket_chat(websocket: WebSocket):
 
     try:
         uri = settings.gateway_ws_url
-        headers = {"Origin": "http://localhost:8765"}
-        async with websockets.connect(uri, open_timeout=3, additional_headers=headers) as gw:
+        async with websockets.connect(uri, open_timeout=3) as gw:
             if not await _handshake(gw):
                 await websocket.send_json({
                     "type": "connection_error",
