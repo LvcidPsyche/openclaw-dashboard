@@ -26,7 +26,7 @@ export function useKeyboardShortcuts() {
         return;
       }
 
-      // "g" key combos for navigation
+      // "g" key combos for navigation across the shipped shell routes
       if (e.key === 'g' && !pendingKey.current) {
         pendingKey.current = 'g';
         if (timeout.current) clearTimeout(timeout.current);
@@ -39,21 +39,11 @@ export function useKeyboardShortcuts() {
         if (timeout.current) clearTimeout(timeout.current);
 
         const routes: Record<string, string> = {
-          o: '/',
-          j: '/jobs',
-          p: '/pipelines',
-          a: '/agents',
-          k: '/skills',
-          c: '/config',
-          n: '/nodes',
-          m: '/metrics',
+          c: '/',
+          o: '/overview',
           s: '/system',
-          l: '/logs',
           d: '/debug',
-          h: '/docs',
-          t: '/chat',
-          e: '/sessions',
-          i: '/settings',
+          f: '/files',
         };
 
         if (routes[e.key]) {

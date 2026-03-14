@@ -13,61 +13,33 @@ A free, open-source monitoring and management dashboard for [OpenClaw](https://o
 
 https://github.com/user-attachments/assets/demo.webm
 
-> [Download demo video](docs/demo.webm) (2.9 MB, 78 seconds — all 15 pages)
+> [Download demo video](docs/demo.webm) (2.9 MB, 78 seconds — earlier broader surface demo; the current shipped shell is the lean 5-view dashboard below)
 
 ## What It Does
 
-OpenClaw Dashboard gives you a single web interface to monitor, manage, and control everything in your OpenClaw workspace:
+OpenClaw Dashboard currently ships a lean operator shell around the highest-signal OpenClaw workflows:
 
-- **Overview** — Real-time stats: active jobs, token usage, costs, system health
-- **Jobs** — Full CRUD: create, edit, delete, run now, view run history for cron jobs
-- **Pipelines** — Auto-discovered pipelines with status and stage visualization
-- **Agents** — Detected agents with type classification and capabilities
-- **Skills** — Browse installed skills with categories, search, and README viewer
-- **Config** — Tabbed configuration editor (General, Models, Gateway, Agents, Skills, Raw JSON)
-- **Nodes** — Connected nodes and paired device management (approve/reject/revoke/rotate tokens)
-- **Metrics** — Token usage charts, cost breakdown by model, daily trends, CSV export
-- **System** — CPU, memory, and disk gauges with health checks
-- **Logs** — Real-time log viewer with search, auto-scroll, and download
-- **Debug** — Gateway diagnostics, health checks, filesystem status, session inspector, log tail
-- **Docs** — Curated OpenClaw documentation links and quick reference
-- **Chat** — AI chat proxy with model selector and extended thinking toggle
-- **Sessions** — Session management with usage stats, history, model/thinking settings
-- **Settings** — Discovery engine, keyboard shortcuts reference, system info
+- **Chat** — AI chat proxy to the OpenClaw gateway
+- **Overview** — High-level workload, token, and cost summary
+- **System** — CPU, memory, disk, and health status
+- **Debug** — Gateway diagnostics, session inspection, filesystem checks, and log tail
+- **Files** — Lightweight file explorer/search/reader for workspace inspection
+
+The backend still retains broader API modules for future expansion, but the routed frontend surface is intentionally narrowed to these five views right now.
 
 ## Screenshots
 
-| Overview | Jobs |
-|----------|------|
-| ![Overview](docs/screenshots/dashboard-overview.png) | ![Jobs](docs/screenshots/dashboard-jobs.png) |
-
-| Pipelines | Agents |
-|-----------|--------|
-| ![Pipelines](docs/screenshots/dashboard-pipelines.png) | ![Agents](docs/screenshots/dashboard-agents.png) |
-
-| Skills | Config |
-|--------|--------|
-| ![Skills](docs/screenshots/dashboard-skills.png) | ![Config](docs/screenshots/dashboard-config.png) |
-
-| Nodes | Metrics |
-|-------|---------|
-| ![Nodes](docs/screenshots/dashboard-nodes.png) | ![Metrics](docs/screenshots/dashboard-metrics.png) |
-
-| System | Logs |
-|--------|------|
-| ![System](docs/screenshots/dashboard-system.png) | ![Logs](docs/screenshots/dashboard-logs.png) |
-
-| Debug | Docs |
-|-------|------|
-| ![Debug](docs/screenshots/dashboard-debug.png) | ![Docs](docs/screenshots/dashboard-docs.png) |
-
-| Chat | Sessions |
+| Chat | Overview |
 |------|----------|
-| ![Chat](docs/screenshots/dashboard-chat.png) | ![Sessions](docs/screenshots/dashboard-sessions.png) |
+| ![Chat](docs/screenshots/dashboard-chat.png) | ![Overview](docs/screenshots/dashboard-overview.png) |
 
-| Settings |
-|----------|
-| ![Settings](docs/screenshots/dashboard-settings.png) |
+| System | Debug |
+|--------|-------|
+| ![System](docs/screenshots/dashboard-system.png) | ![Debug](docs/screenshots/dashboard-debug.png) |
+
+| Files |
+|-------|
+| Workspace file explorer is included in the shipped shell (`/files`), even though there is not yet a dedicated screenshot checked into `docs/screenshots/`. |
 
 ## Quick Start
 
@@ -130,28 +102,21 @@ The backend serves the built frontend automatically — no separate web server n
 
 ## Features
 
-### Full Job Management
-Create, edit, delete, and run cron jobs directly from the dashboard. Supports cron expressions with preset helpers and interval-based scheduling.
+### Lean operator shell
+The current frontend intentionally keeps only the fastest operator loops in the sidebar: Chat, Overview, System, Debug, and Files.
 
-### Configuration Editor
-Tabbed editor for OpenClaw configuration with sections for general settings, models, gateway, agents, skills, and raw JSON editing. Secrets are automatically redacted in API responses.
-
-### Node & Device Management
-View connected nodes, manage paired devices with approve/reject/revoke/rotate token actions.
-
-### Session Management
-View all chat sessions with usage stats, switch models, toggle extended thinking, and review chat history.
+### Backend still covers broader OpenClaw data
+The FastAPI layer still exposes jobs, discovery, metrics, config, nodes, logs, and session-management endpoints so the dashboard can expand again without redoing the data plane.
 
 ### Debug & Diagnostics
 Gateway connection testing, health checks, filesystem status verification, active session inspector, and live log tail.
 
 ### Customer-Quality UX
 - Toast notifications on all mutations
-- Keyboard shortcuts (`g+o` Overview, `g+j` Jobs, `/` focus search, `Esc` close modals)
-- CSV export on Jobs, Metrics pages
-- Log file download
-- Confirmation dialogs for destructive actions
-- Loading skeletons and empty states on every page
+- Keyboard shortcuts (`g+c` Chat, `g+o` Overview, `g+s` System, `g+d` Debug, `g+f` Files, `/` focus search, `Esc` blur active input)
+- Sidebar prefetch for routed pages
+- File search + read flow
+- Loading skeletons and empty states on the routed shell
 
 ### Security
 - Security headers (CSP, X-Frame-Options, X-Content-Type-Options)
@@ -198,7 +163,7 @@ backend/
 
 frontend/
   src/
-    pages/               # 15 page components
+    pages/               # current routed shell + retained expansion pages
     components/
       layout/            # Sidebar, Header, Layout
       common/            # StatCard, StatusBadge, EmptyState, LoadingState, Toast, ConfirmDialog
