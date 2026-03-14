@@ -46,7 +46,7 @@ The backend still retains broader API modules for future expansion, but the rout
 ### Prerequisites
 
 - Python 3.10+
-- Node.js 18+
+- Node.js 20.19+ or 22.12+ (frontend uses Vite 7)
 - An OpenClaw installation (the dashboard reads from `~/.openclaw/`)
 
 ### 1. Clone and install
