@@ -21,7 +21,7 @@ export default function ConfirmDialog({
     ? 'bg-red-600 hover:bg-red-700'
     : variant === 'warning'
       ? 'bg-amber-600 hover:bg-amber-700'
-      : 'bg-blue-600 hover:bg-blue-700';
+      : 'bg-amber-600 hover:bg-amber-700';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onCancel}>

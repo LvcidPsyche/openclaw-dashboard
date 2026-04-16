@@ -4,7 +4,7 @@ const DOCS_SECTIONS = [
   {
     title: 'Getting Started',
     icon: BookOpen,
-    color: 'text-blue-400',
+    color: 'text-amber-400',
     links: [
       { name: 'Installation Guide', desc: 'Install and set up OpenClaw on your system' },
       { name: 'Quick Start', desc: 'Get up and running in under 5 minutes' },
@@ -123,7 +123,7 @@ export default function DocsPage() {
         <h2 className="text-sm font-semibold text-slate-300 mb-4">Architecture Overview</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
           {[
-            { name: 'Dashboard', desc: 'React 19 + TypeScript', color: 'border-blue-500/30 bg-blue-500/5' },
+            { name: 'Dashboard', desc: 'React 19 + TypeScript', color: 'border-amber-500/30 bg-amber-500/5' },
             { name: 'Backend API', desc: 'FastAPI + Python', color: 'border-green-500/30 bg-green-500/5' },
             { name: 'Gateway', desc: 'WebSocket RPC', color: 'border-purple-500/30 bg-purple-500/5' },
             { name: 'Agents', desc: 'AI Model Runners', color: 'border-amber-500/30 bg-amber-500/5' },

@@ -140,11 +140,11 @@ export default function FilesPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={`Search in ${path}...`}
-            className="w-full pl-9 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+            className="w-full pl-9 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50"
           />
         </div>
         <button type="submit" disabled={searching}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50 transition-colors">
+          className="px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 disabled:opacity-50 transition-colors">
           {searching ? 'Searching...' : 'Search'}
         </button>
         {searchResults && (
@@ -225,7 +225,7 @@ export default function FilesPage() {
                           else openFile(entry);
                         }}
                         className={`border-t border-slate-700/30 cursor-pointer transition-colors hover:bg-slate-700/30 ${
-                          selectedFile?.path === entry.path ? 'bg-blue-600/10 hover:bg-blue-600/20' : ''
+                          selectedFile?.path === entry.path ? 'bg-amber-600/10 hover:bg-amber-600/20' : ''
                         }`}
                       >
                         <td className="px-4 py-2.5">

@@ -91,7 +91,7 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
           <div>
             <label className="block text-sm text-slate-400 mb-1">Job Name</label>
             <input value={form.name} onChange={(e) => set('name', e.target.value)}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50" />
           </div>
 
           <div>
@@ -99,7 +99,7 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
             <div className="flex gap-2">
               {(['cron', 'interval'] as const).map((t) => (
                 <button key={t} type="button" onClick={() => set('scheduleType', t)}
-                  className={`px-4 py-1.5 text-sm rounded-lg capitalize ${form.scheduleType === t ? 'bg-blue-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-700'}`}>
+                  className={`px-4 py-1.5 text-sm rounded-lg capitalize ${form.scheduleType === t ? 'bg-amber-600 text-white' : 'bg-slate-900 text-slate-400 border border-slate-700'}`}>
                   {t}
                 </button>
               ))}
@@ -111,7 +111,7 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
               <label className="block text-sm text-slate-400 mb-1">Cron Expression</label>
               <input value={form.cronExpression} onChange={(e) => set('cronExpression', e.target.value)}
                 placeholder="* * * * *"
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-blue-500" />
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white font-mono focus:outline-none focus:border-amber-500/50" />
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {CRON_PRESETS.map((p) => (
                   <button key={p.value} type="button" onClick={() => set('cronExpression', p.value)}
@@ -126,7 +126,7 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
               <label className="block text-sm text-slate-400 mb-1">Interval (minutes)</label>
               <input type="number" value={form.intervalMs / 60000} min={1}
                 onChange={(e) => set('intervalMs', parseInt(e.target.value || '1') * 60000)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50" />
             </div>
           )}
 
@@ -134,20 +134,20 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
             <div>
               <label className="block text-sm text-slate-400 mb-1">Agent</label>
               <input value={form.agent} onChange={(e) => set('agent', e.target.value)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50" />
             </div>
             <div>
               <label className="block text-sm text-slate-400 mb-1">Model (optional)</label>
               <input value={form.model} onChange={(e) => set('model', e.target.value)}
                 placeholder="Default"
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50" />
             </div>
           </div>
 
           <div>
             <label className="block text-sm text-slate-400 mb-1">Message / Prompt</label>
             <textarea value={form.message} onChange={(e) => set('message', e.target.value)} rows={3}
-              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500 resize-none" />
+              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50 resize-none" />
           </div>
 
           <div className="flex items-center gap-4">
@@ -155,7 +155,7 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
               <label className="block text-sm text-slate-400 mb-1">Timeout (seconds)</label>
               <input type="number" value={form.timeout / 1000} min={10}
                 onChange={(e) => set('timeout', parseInt(e.target.value || '300') * 1000)}
-                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-blue-500" />
+                className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-sm text-white focus:outline-none focus:border-amber-500/50" />
             </div>
             <label className="flex items-center gap-2 text-sm text-slate-300 pt-5">
               <input type="checkbox" checked={form.enabled} onChange={(e) => set('enabled', e.target.checked)}
@@ -170,7 +170,7 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
               Cancel
             </button>
             <button type="submit" disabled={submitting}
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700 transition-colors disabled:opacity-50">
+              className="flex-1 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm hover:bg-amber-700 transition-colors disabled:opacity-50">
               {submitting ? 'Saving...' : title}
             </button>
           </div>

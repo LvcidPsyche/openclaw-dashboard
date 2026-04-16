@@ -83,7 +83,7 @@ export default function DebugPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
           <div className="flex items-center gap-2 mb-4">
-            <Activity size={16} className="text-blue-400" />
+            <Activity size={16} className="text-amber-400" />
             <h2 className="text-sm font-semibold text-white">Health Checks</h2>
           </div>
           {health ? (
@@ -172,7 +172,7 @@ export default function DebugPage() {
           <div className="flex gap-1">
             {['all', 'error', 'warn', 'info'].map((level) => (
               <button key={level} onClick={() => setLogLevel(level)}
-                className={`px-2 py-0.5 text-xs rounded capitalize ${logLevel === level ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
+                className={`px-2 py-0.5 text-xs rounded capitalize ${logLevel === level ? 'bg-amber-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
                 {level}
               </button>
             ))}

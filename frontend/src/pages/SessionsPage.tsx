@@ -198,7 +198,7 @@ export default function SessionsPage() {
                                 <div className="max-h-32 overflow-y-auto space-y-1">
                                   {(sessionDetail?.messages || []).slice(-10).map((msg: any, i: number) => (
                                     <div key={i} className="text-xs">
-                                      <span className={`font-medium ${msg.role === 'user' ? 'text-blue-400' : 'text-green-400'}`}>{msg.role}: </span>
+                                      <span className={`font-medium ${msg.role === 'user' ? 'text-amber-400' : 'text-green-400'}`}>{msg.role}: </span>
                                       <span className="text-slate-400 truncate">{(msg.content || '').substring(0, 100)}</span>
                                     </div>
                                   ))}

@@ -52,7 +52,7 @@ export default function NodesPage() {
       {/* Nodes Section */}
       <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-700/50 flex items-center gap-2">
-          <Network size={16} className="text-blue-400" />
+          <Network size={16} className="text-amber-400" />
           <h2 className="text-sm font-semibold text-white">Connected Nodes</h2>
           <span className="text-xs text-slate-500 ml-auto">{nodes.length} nodes</span>
         </div>
@@ -147,7 +147,7 @@ export default function NodesPage() {
                           <ShieldOff size={14} />
                         </button>
                         <button onClick={() => handleAction(dev.device_id || dev.deviceId, 'rotate')}
-                          className="p-1.5 rounded-lg hover:bg-slate-700 text-blue-400" title="Rotate token">
+                          className="p-1.5 rounded-lg hover:bg-slate-700 text-amber-400" title="Rotate token">
                           <RotateCcw size={14} />
                         </button>
                       </div>

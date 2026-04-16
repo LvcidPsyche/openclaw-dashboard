@@ -95,7 +95,7 @@ export default function ConfigPage() {
             Apply Changes
           </button>
           <button onClick={handleSave} disabled={saving}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors disabled:opacity-50">
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors disabled:opacity-50">
             <Save size={16} /> {saving ? 'Saving...' : 'Save'}
           </button>
         </div>
@@ -105,7 +105,7 @@ export default function ConfigPage() {
       <div className="flex gap-1 bg-slate-800/50 rounded-xl p-1 border border-slate-700/50">
         {TABS.map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === tab ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
+            className={`px-4 py-2 text-sm rounded-lg transition-colors ${activeTab === tab ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white hover:bg-slate-700/50'}`}>
             {tab}
           </button>
         ))}
@@ -165,7 +165,7 @@ export default function ConfigPage() {
               Edit with care — invalid JSON will prevent saving
             </div>
             <textarea value={rawJson} onChange={(e) => setRawJson(e.target.value)}
-              className="w-full h-[500px] px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-xs text-green-400 font-mono focus:outline-none focus:border-blue-500 resize-none"
+              className="w-full h-[500px] px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-xs text-green-400 font-mono focus:outline-none focus:border-amber-500/50 resize-none"
               spellCheck={false} />
           </div>
         )}

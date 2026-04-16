@@ -73,7 +73,7 @@ export default function LogsPage() {
         <div className="w-56 shrink-0 space-y-1">
           {files.map((f) => (
             <button key={f.name} onClick={() => setSelected(f.name)}
-              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${selected === f.name ? 'bg-blue-600/20 text-blue-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm flex items-center gap-2 ${selected === f.name ? 'bg-amber-500/10 text-amber-400' : 'text-slate-400 hover:text-white hover:bg-slate-800'}`}>
               <FileText size={14} />
               <div className="truncate flex-1">
                 <div className="truncate">{f.name}</div>
@@ -87,7 +87,7 @@ export default function LogsPage() {
           <div className="mb-2">
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter logs..."
-              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500" />
+              className="w-full px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50" />
           </div>
           <div ref={logRef} className="flex-1 bg-slate-900 rounded-xl border border-slate-700/50 p-4 overflow-y-auto font-mono text-xs">
             {filtered.length === 0 ? (

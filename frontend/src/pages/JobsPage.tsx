@@ -105,13 +105,13 @@ export default function JobsPage() {
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input value={search} onChange={(e) => setSearch(e.target.value)}
               placeholder="Search jobs..."
-              className="pl-9 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 w-64" />
+              className="pl-9 pr-4 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:border-amber-500/50 w-64" />
           </div>
           <button onClick={exportCsv} className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white" title="Export CSV">
             <Download size={16} />
           </button>
           <button onClick={() => { setEditJob(null); setModalOpen(true); }}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
+            className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors">
             <Plus size={16} /> Create Job
           </button>
         </div>
@@ -174,7 +174,7 @@ export default function JobsPage() {
                               <Play size={14} />
                             </button>
                           )}
-                          <button onClick={() => handleRunNow(job.id)} className="p-1.5 rounded-lg hover:bg-slate-700 text-blue-400" title="Run now">
+                          <button onClick={() => handleRunNow(job.id)} className="p-1.5 rounded-lg hover:bg-slate-700 text-amber-400" title="Run now">
                             <RotateCcw size={14} />
                           </button>
                           <button onClick={() => { setEditJob(job); setModalOpen(true); }} className="p-1.5 rounded-lg hover:bg-slate-700 text-slate-400" title="Edit">

@@ -37,7 +37,7 @@ export default function SettingsPage() {
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-slate-300">Discovery Engine</h3>
           <button onClick={handleRefresh} disabled={refreshing}
-            className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50">
+            className="flex items-center gap-2 px-3 py-1.5 bg-amber-600 text-white text-sm rounded-lg hover:bg-amber-700 disabled:opacity-50">
             <RefreshCw size={14} className={refreshing ? 'animate-spin' : ''} /> Refresh
           </button>
         </div>
@@ -93,7 +93,7 @@ export default function SettingsPage() {
       {/* About */}
       <div className="bg-slate-800/50 rounded-xl p-5 border border-slate-700/50">
         <div className="flex items-center gap-2 mb-4">
-          <Info size={16} className="text-blue-400" />
+          <Info size={16} className="text-amber-400" />
           <h3 className="text-sm font-semibold text-slate-300">About</h3>
         </div>
         <div className="space-y-2 text-sm">
