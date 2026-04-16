@@ -31,3 +31,86 @@ code {
 ::-webkit-scrollbar-thumb:hover {
   background: #475569;
 }
+
+/* Flight Deck scan-line overlay */
+.fd-scanlines {
+  position: relative;
+}
+.fd-scanlines::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 3px,
+    rgba(0, 0, 0, 0.04) 3px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* HUD panel glow on hover */
+.fd-panel {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.fd-panel:hover {
+  border-color: rgba(245, 158, 11, 0.3);
+  box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.05);
+}
+
+/* Arc gauge SVG transition */
+.fd-arc-fill {
+  transition: stroke-dasharray 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Log stream monospace */
+.fd-log {
+  font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+/* Amber glow for active indicators */
+@keyframes amber-pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 4px rgba(251, 191, 36, 0.6); }
+  50% { opacity: 0.6; box-shadow: 0 0 8px rgba(251, 191, 36, 0.3); }
+}
+.fd-live-dot {
+  animation: amber-pulse 2s ease-in-out infinite;
+}
+
+/* Range input styling */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+input[type="range"]::-webkit-slider-track {
+  background: #1e293b;
+  height: 4px;
+  border-radius: 2px;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #f59e0b;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-top: -4px;
+}
+input[type="range"]::-moz-range-track {
+  background: #1e293b;
+  height: 4px;
+  border-radius: 2px;
+}
+input[type="range"]::-moz-range-thumb {
+  background: #f59e0b;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+}

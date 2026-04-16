@@ -1,6 +1,31 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const ROUTES: Record<string, string> = {
+  // Core
+  h: '/',           // nerve center / home
+  c: '/chat',
+  o: '/overview',
+  // Agents
+  a: '/agents',
+  e: '/sessions',
+  n: '/nodes',
+  // Automate
+  j: '/jobs',
+  p: '/pipelines',
+  k: '/skills',
+  // Observe
+  m: '/metrics',
+  l: '/logs',
+  f: '/files',
+  // Config
+  x: '/config',
+  t: '/settings',
+  s: '/system',
+  d: '/debug',
+  r: '/docs',
+};
+
 export function useKeyboardShortcuts() {
   const navigate = useNavigate();
   const pendingKey = useRef<string | null>(null);
@@ -9,24 +34,20 @@ export function useKeyboardShortcuts() {
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement).tagName;
-      // Don't intercept when typing in inputs
       if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
 
-      // Esc: close modals (bubble up via native events, but also blur)
       if (e.key === 'Escape') {
         (document.activeElement as HTMLElement)?.blur();
         return;
       }
 
-      // "/" to focus search (if any)
       if (e.key === '/') {
         e.preventDefault();
-        const searchInput = document.querySelector<HTMLInputElement>('input[placeholder*="Search"]');
-        if (searchInput) searchInput.focus();
+        const input = document.querySelector<HTMLInputElement>('input[placeholder*="Search"]');
+        if (input) input.focus();
         return;
       }
 
-      // "g" key combos for navigation across the shipped shell routes
       if (e.key === 'g' && !pendingKey.current) {
         pendingKey.current = 'g';
         if (timeout.current) clearTimeout(timeout.current);
@@ -37,18 +58,10 @@ export function useKeyboardShortcuts() {
       if (pendingKey.current === 'g') {
         pendingKey.current = null;
         if (timeout.current) clearTimeout(timeout.current);
-
-        const routes: Record<string, string> = {
-          c: '/',
-          o: '/overview',
-          s: '/system',
-          d: '/debug',
-          f: '/files',
-        };
-
-        if (routes[e.key]) {
+        const route = ROUTES[e.key];
+        if (route) {
           e.preventDefault();
-          navigate(routes[e.key]);
+          navigate(route);
         }
       }
     };
