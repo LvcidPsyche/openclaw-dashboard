@@ -70,8 +70,8 @@ export const useStore = create<DashboardStore>((set, get) => ({
         api.fetchSystemResources(),
       ]);
       set({ overview: ov, jobs: jobsData, system: sys, loading: false });
-    } catch (e: any) {
-      set({ error: e.message, loading: false });
+    } catch (e: unknown) {
+      set({ error: (e instanceof Error ? e.message : 'Unknown error'), loading: false });
     }
   },
 
@@ -79,63 +79,63 @@ export const useStore = create<DashboardStore>((set, get) => ({
     try {
       const ov = await api.fetchOverview();
       set({ overview: ov });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchJobs: async () => {
     try {
       const data = await api.fetchJobs();
       set({ jobs: data });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchSystem: async () => {
     try {
       const sys = await api.fetchSystemResources();
       set({ system: sys });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchPipelines: async () => {
     try {
       const { pipelines } = await api.fetchPipelines();
       set({ pipelines });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchAgents: async () => {
     try {
       const { agents } = await api.fetchAgents();
       set({ agents });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchSkills: async (params) => {
     try {
       const { skills, total } = await api.fetchSkills({ ...params, limit: 50 });
       set({ skills, skillsTotal: total });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchSkillCategories: async () => {
     try {
       const { categories } = await api.fetchSkillCategories();
       set({ skillCategories: categories });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchTimeseries: async (metric = 'tokens', hours = 24) => {
     try {
       const { data } = await api.fetchTimeseries(metric, hours);
       set({ timeseries: data });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   fetchBreakdown: async () => {
     try {
       const bd = await api.fetchBreakdown();
       set({ breakdown: bd });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   controlJob: async (jobId, action) => {
@@ -163,7 +163,7 @@ export const useStore = create<DashboardStore>((set, get) => ({
     try {
       const { files } = await api.fetchLogFiles();
       set({ logFiles: files });
-    } catch {}
+    } catch { /* noop */ }
   },
 
   setSidebarOpen: (open) => set({ sidebarOpen: open }),

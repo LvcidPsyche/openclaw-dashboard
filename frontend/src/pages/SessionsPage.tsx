@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { useToast } from '../hooks/useToast';
 import { usePolling } from '../hooks/usePolling';
@@ -18,13 +19,14 @@ export default function SessionsPage() {
     try {
       const data = await api.fetchSessionsList();
       setSessions(data.sessions || []);
-    } catch {}
+    } catch { /* noop */ }
     setLoading(false);
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     loadSessions();
-    api.fetchModels().then((d) => setModels(d.models || [])).catch(() => {});
+    api.fetchModels().then((d) => setModels(d.models || [])).catch(() => { /* noop */ });
   }, []);
 
   usePolling(loadSessions, 15000);

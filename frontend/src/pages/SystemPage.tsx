@@ -6,6 +6,7 @@ import type { DeviceInfo, SessionInfo } from '../api/types';
 
 export default function SystemPage() {
   const { system, fetchSystem } = useStore();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [health, setHealth] = useState<Record<string, any> | null>(null);
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [sessions, setSessions] = useState<SessionInfo[]>([]);

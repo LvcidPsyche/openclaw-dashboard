@@ -13,11 +13,17 @@ export default function LogsPage() {
   const [search, setSearch] = useState('');
   const logRef = useRef<HTMLDivElement>(null);
 
+  const loadLogs = () => {
+    if (!selected) return;
+    fetchLogTail(selected, 200).then((d) => setLines(d.lines)).catch(() => { /* noop */ });
+  };
+
   useEffect(() => {
     fetchLogFiles().then(({ files: f }) => {
       setFiles(f);
       if (f.length > 0 && !selected) setSelected(f[0].name);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -25,6 +31,7 @@ export default function LogsPage() {
     loadLogs();
     const id = setInterval(loadLogs, 5000);
     return () => clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected]);
 
   useEffect(() => {
@@ -32,11 +39,6 @@ export default function LogsPage() {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [lines, autoScroll]);
-
-  const loadLogs = () => {
-    if (!selected) return;
-    fetchLogTail(selected, 200).then((d) => setLines(d.lines)).catch(() => {});
-  };
 
   const downloadLog = () => {
     if (!lines.length) return;

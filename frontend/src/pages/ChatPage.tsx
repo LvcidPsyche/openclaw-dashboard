@@ -14,6 +14,7 @@ export default function ChatPage() {
   const [gatewayUp, setGatewayUp] = useState<boolean | null>(null);
   const [sending, setSending] = useState(false);
   const [streamingId, setStreamingId] = useState<string | null>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [models, setModels] = useState<any[]>([]);
   const [selectedModel, setSelectedModel] = useState('');
   const [thinking, setThinking] = useState(false);
@@ -21,6 +22,7 @@ export default function ChatPage() {
 
   const endRef = useRef<HTMLDivElement>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const connectRef = useRef<(attempt?: number) => void>(() => {});
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -82,7 +84,7 @@ export default function ChatPage() {
       if (nextAttempt <= MAX_RECONNECT_ATTEMPTS) {
         const delay = RECONNECT_BASE_DELAY_MS * Math.pow(1.5, attempt);
         setReconnectCount(nextAttempt);
-        reconnectTimer.current = setTimeout(() => connectWs(nextAttempt), delay);
+        reconnectTimer.current = setTimeout(() => connectRef.current(nextAttempt), delay);
       } else {
         setReconnectCount(0);
       }
@@ -90,6 +92,11 @@ export default function ChatPage() {
 
     setWs(socket);
   }, [addChatMessage, updateLastChatMessage]);
+
+  // Keep connectRef current so the recursive setTimeout reference is always fresh
+  useEffect(() => {
+    connectRef.current = connectWs;
+  }, [connectWs]);
 
   useEffect(() => {
     fetch('/api/chat/status')
@@ -163,6 +170,7 @@ export default function ChatPage() {
               className="px-3 py-1.5 bg-slate-800 border border-slate-700 rounded-lg text-xs text-white focus:outline-none focus:border-amber-500/50"
             >
               <option value="">Default model</option>
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {models.map((m: any, i: number) => (
                 <option key={i} value={m.id || m.name || m}>{m.name || m.id || m}</option>
               ))}

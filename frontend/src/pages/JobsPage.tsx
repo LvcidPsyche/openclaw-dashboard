@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from 'react';
 import { useStore } from '../store';
 import { usePolling } from '../hooks/usePolling';

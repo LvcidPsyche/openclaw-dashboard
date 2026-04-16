@@ -8,17 +8,14 @@ type Tab = typeof TABS[number];
 
 export default function ConfigPage() {
   const toast = useToast();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [config, setConfig] = useState<Record<string, any>>({});
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [models, setModels] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<Tab>('General');
   const [rawJson, setRawJson] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    loadConfig();
-    api.fetchModels().then((d) => setModels(d.models || [])).catch(() => {});
-  }, []);
 
   const loadConfig = async () => {
     setLoading(true);
@@ -32,6 +29,12 @@ export default function ConfigPage() {
     setLoading(false);
   };
 
+  useEffect(() => {
+    loadConfig();
+    api.fetchModels().then((d) => setModels(d.models || [])).catch(() => { /* noop */ });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -39,8 +42,8 @@ export default function ConfigPage() {
       await api.updateConfig(data);
       toast.success('Configuration saved');
       await loadConfig();
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to save');
+    } catch (e: unknown) {
+      toast.error((e instanceof Error ? e.message : null) || 'Failed to save');
     }
     setSaving(false);
   };
@@ -54,6 +57,7 @@ export default function ConfigPage() {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderSection = (title: string, entries: [string, any][]) => (
     <div className="space-y-2">
       <h3 className="text-sm font-semibold text-slate-300 mb-3">{title}</h3>
@@ -128,6 +132,7 @@ export default function ConfigPage() {
               <div className="text-sm text-slate-500">No models detected. Gateway may be offline.</div>
             ) : (
               <div className="grid gap-2">
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 {models.map((m: any, i: number) => (
                   <div key={i} className="flex items-center justify-between px-4 py-3 bg-slate-700/30 rounded-lg">
                     <div>

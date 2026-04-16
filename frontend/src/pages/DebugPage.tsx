@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from 'react';
 import { usePolling } from '../hooks/usePolling';
 import EmptyState from '../components/common/EmptyState';
@@ -27,10 +28,11 @@ export default function DebugPage() {
       if (s.status === 'fulfilled') setSessions((s.value as any).sessions || []);
       if (l.status === 'fulfilled') setLogs((l.value as any).lines || []);
       if (fs.status === 'fulfilled') setFilesystem((fs.value as any).checks || {});
-    } catch {}
+    } catch { /* noop */ }
     setLoading(false);
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadAll(); }, []);
   usePolling(loadAll, 30000);
 

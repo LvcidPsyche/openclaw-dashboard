@@ -6,6 +6,7 @@ import {
   Droplets, Tv, PenTool, BarChart2, Bug, GitBranch,
 } from 'lucide-react';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const iconMap: Record<string, any> = {
   droplets: Droplets,
   tv: Tv,

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { apiFetch, apiPost, apiPut, apiPatch, apiDelete } from './client';
 import type {
   DashboardOverview, JobStatus, SystemResources, TokenMetricsResponse,

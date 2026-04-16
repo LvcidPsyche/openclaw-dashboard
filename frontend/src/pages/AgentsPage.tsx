@@ -4,6 +4,7 @@ import EmptyState from '../components/common/EmptyState';
 import StatusBadge from '../components/common/StatusBadge';
 import { Code, Search, PenTool, Settings, Shield, DollarSign, Bot } from 'lucide-react';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const iconMap: Record<string, any> = {
   code: Code,
   search: Search,

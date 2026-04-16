@@ -8,6 +8,7 @@ export default function SettingsPage() {
   const toast = useToast();
   const [discovery, setDiscovery] = useState<DiscoveryResult | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [health, setHealth] = useState<Record<string, any> | null>(null);
 
   useEffect(() => {

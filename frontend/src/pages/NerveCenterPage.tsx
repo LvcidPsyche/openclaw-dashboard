@@ -128,7 +128,9 @@ function LogLine({ line }: { line: string }) {
 export default function NerveCenterPage() {
   const { system, overview, jobs, timeseries, fetchAll, fetchTimeseries, controlJob } = useStore();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [gateway, setGateway] = useState<any>(null);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sessions, setSessions] = useState<any[]>([]);
   const [logLines, setLogLines] = useState<string[]>([]);
   const [budget, setBudget] = useState<number>(() => {

@@ -69,14 +69,14 @@ export default function JobFormModal({ open, onClose, onSubmit, initial, title =
     try {
       await onSubmit(form);
       onClose();
-    } catch (err: any) {
-      setError(err.message || 'Failed to save job');
+    } catch (err: unknown) {
+      setError((err instanceof Error ? err.message : null) || 'Failed to save job');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const set = (key: keyof JobFormData, value: any) => setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: keyof JobFormData, value: JobFormData[keyof JobFormData]) => setForm((f) => ({ ...f, [key]: value }));
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
