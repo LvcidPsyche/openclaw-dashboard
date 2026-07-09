@@ -10,7 +10,14 @@ class Settings(BaseSettings):
     gateway_url: str = "http://localhost:18789"
     gateway_ws_url: str = "ws://127.0.0.1:18789"
     gateway_token: str = ""
-    host: str = "0.0.0.0"
+    # Dashboard access token. When set, every /api and /ws request must present it
+    # (X-Dashboard-Token header, Authorization: Bearer, or ?token= for websockets).
+    # When empty, the dashboard relies on the loopback bind below for protection.
+    dashboard_token: str = ""
+    # Bind loopback by default: the file explorer + control APIs are powerful, so
+    # they must not be network-exposed without an explicit opt-in (host=0.0.0.0 plus
+    # a dashboard_token). For remote access, prefer an SSH tunnel to 127.0.0.1.
+    host: str = "127.0.0.1"
     port: int = 8765
     log_level: str = "error"
     discovery_interval_seconds: int = 300  # 5 minutes

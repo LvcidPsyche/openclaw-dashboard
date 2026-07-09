@@ -1,6 +1,7 @@
 """OpenClaw Dashboard — Unified FastAPI application."""
 
 import asyncio
+import logging
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -13,7 +14,11 @@ from fastapi.responses import FileResponse, JSONResponse
 from app.config import settings
 from app.discovery.engine import run_discovery, needs_refresh
 from app.websocket.manager import manager
-from app.middleware.security import SecurityHeadersMiddleware, RequestSizeLimitMiddleware
+from app.middleware.security import (
+    SecurityHeadersMiddleware,
+    RequestSizeLimitMiddleware,
+    DashboardAuthMiddleware,
+)
 from app.routers import (
     overview, jobs, metrics, system, sessions, chat, logs, discovery,
 )
@@ -51,8 +56,18 @@ app = FastAPI(
     redoc_url=None,
 )
 
+if settings.host not in ("127.0.0.1", "localhost", "::1") and not settings.dashboard_token:
+    logging.getLogger("uvicorn.error").warning(
+        "SECURITY: dashboard bound to %s with no dashboard token set — the file explorer "
+        "and control APIs are UNAUTHENTICATED and network-reachable. Set "
+        "OPENCLAW_DASH_DASHBOARD_TOKEN or bind 127.0.0.1.",
+        settings.host,
+    )
+
 # Security middleware (outermost = processes first)
 app.add_middleware(SecurityHeadersMiddleware)
+# Token gate (ASGI-level so it also covers /ws): no-op when no token is configured.
+app.add_middleware(DashboardAuthMiddleware, token=settings.dashboard_token)
 app.add_middleware(RequestSizeLimitMiddleware, max_size=2_097_152)  # 2MB
 app.add_middleware(GZipMiddleware, minimum_size=500)
 app.add_middleware(

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '../store';
 import { Send, WifiOff, Loader2, Brain, Wifi } from 'lucide-react';
 import * as api from '../api/endpoints';
+import { getDashboardToken } from '../api/client';
 
 const MAX_RECONNECT_ATTEMPTS = 5;
 const RECONNECT_BASE_DELAY_MS = 2000;
@@ -32,7 +33,9 @@ export default function ChatPage() {
     if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
 
     const proto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const socket = new WebSocket(`${proto}//${window.location.host}/ws/chat`);
+    const token = getDashboardToken();
+    const query = token ? `?token=${encodeURIComponent(token)}` : '';
+    const socket = new WebSocket(`${proto}//${window.location.host}/ws/chat${query}`);
 
     socket.onopen = () => {
       setConnected(true);

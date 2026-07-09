@@ -28,3 +28,6 @@ Thumbs.db
 *_backup.*
 *_optimized.*
 debug.html
+
+# Local agent scratch (per-session, not shared)
+.agents/
